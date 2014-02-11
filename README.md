@@ -1,14 +1,15 @@
 GitLab CI Cookbook
 ===============
 
-Chef to install GitLab CI.
+Chef to install GitLab CI on CentOS 6.5
 
-* GitLab CI: 4.0.0
-* GitLab CI Runner: 4.0.0
+* GitLab CI: 4-2-stable 
+* GitLab CI Runner: IN PROGRESS
 
-This cookbook is inspired by the excellent [Gitlab Cookbook](https://github.com/ogom/cookbook-gitlab) from oogm and is developed to work well with this cookbook. It will work with others, too. For security reasons we decided to use docker for all gitlab ci runner. This enables us to quickly create and destroy runner. 
+This cookbook is a fork of Christoph Hartmann's original, intended for Ubuntu.  I have adapted it for use in an RHEL environment.
+Warning: This cookbook is under development.  It is being developed with Vagrant, VMware and CentOS.  It will *probably* work in other RHEL 6.* based environments. 
 
-Warning: This cookbook is still in development. `gitlabci:server` with mysql is quite well testen. Postgre and runner deployment is still in early development.
+* NOTES
 
 ## Requirements
 
@@ -23,26 +24,10 @@ Warning: This cookbook is still in development. `gitlabci:server` with mysql is 
 ### Platform:
 
 #### Gitlab CI
-* Ubuntu (12.04, 12.10, 13.04, 13.10)
+* CentOS (6.5)
 
 #### Gitlab CI Runner
-* Ubuntu (13.04, 13.10)
-
-## Installation
-
-### Vagrant
-
-#### VirtualBox
-
-```bash
-$ gem install berkshelf
-$ vagrant plugin install vagrant-berkshelf
-$ vagrant plugin install vagrant-omnibus
-$ git clone git://github.com/chris-rock/cookbook-gitlabci ./gitlabci
-$ cd ./gitlabci
-$ vagrant up server
-$ vagrant up runner
-```
+* IN PROGRESS
 
 ## Usage
 
@@ -83,6 +68,7 @@ Example of node config.
 ## License and Authors
 
 Authors: Christoph Hartmann
+         Brian Dwyer - Updated & Adapted for RHEL
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

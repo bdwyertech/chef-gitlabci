@@ -10,8 +10,8 @@ gitlabci = node['gitlabci']
 gitlabci = Chef::Mixin::DeepMerge.merge(gitlabci,gitlabci[gitlabci['env']])
 
 # database
-include_recipe "mysql::server"
-include_recipe "database::mysql"
+include_recipe 'mysql::server'
+include_recipe 'database::mysql'
 
 mysql_connexion = {
   :host => 'localhost',

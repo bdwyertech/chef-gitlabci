@@ -9,28 +9,12 @@ gitlabci = node['gitlabci']
 gitlabci = Chef::Mixin::DeepMerge.merge(gitlabci,gitlabci[gitlabci['env']])
 
 # clone the source
-old_home = ENV['HOME']
-ruby_block "clear_home for CHEF-3940" do
-  block do
-    ENV['HOME'] = Etc.getpwnam("gitlab_ci").dir
-  end
-  not_if {`git --version`.split[2].to_f <= 1.7}
-end
-
 git gitlabci['path'] do
   repository gitlabci['repository']
   revision gitlabci['revision']
   user gitlabci['user']
   group gitlabci['group']
   action :sync
-end
-
-ruby_block "reset_home" do
-  block do
-    ENV['HOME'] = old_home
-  end
-  not_if {`git --version`.split[2].to_f <= 1.7}
-  #subscribes :create, "git[/home/gitlab_ci/gitlab-ci]", :immediately
 end
 
 # copy the gitlab ci application config
@@ -74,12 +58,12 @@ end
   end
 end
 
-# install gems
-template File.join(gitlabci['home'], ".gemrc") do
-  source "gemrc.erb"
+## Install Gems without ri and rdoc
+template File.join(gitlabci['home'], '.gemrc') do
+  source 'gemrc.erb'
   user gitlabci['user']
   group gitlabci['group']
-  notifies :run, "execute[bundle install]", :immediately
+  notifies :run, 'execute[bundle install]', :immediately
 end
 
 # gem without
@@ -99,10 +83,11 @@ else
   bundle_without << 'production'
 end
 
-execute "bundle install" do
+# => Install Gems
+execute 'bundle install' do
   command <<-EOS
-    PATH="/usr/local/bin:$PATH"
-    #{gitlabci['bundle_install']} --without #{bundle_without.join(" ")}
+  PATH="/usr/local/bin:$PATH"
+  #{gitlabci['bundle_install']} --without #{bundle_without.join(" ")}
   EOS
   cwd gitlabci['path']
   user gitlabci['user']
@@ -110,9 +95,8 @@ execute "bundle install" do
   action :nothing
 end
 
-
 ## configure gitlab ci db settings
-template File.join(gitlabci['path'], "config", "database.yml") do
+template File.join(gitlabci['path'], 'config', 'database.yml') do
   source "database.yml.#{gitlabci['database_adapter']}.erb"
   user gitlabci['user']
   group gitlabci['group']
@@ -130,9 +114,10 @@ gitlabci['environments'].each do |environment|
   log "#{environment}"
 
   # Setup tables
-  execute "setup tables install" do
+  execute 'setup tables install' do
     command <<-EOS
-      bundle exec rake db:setup RAILS_ENV=#{environment}
+    PATH="/usr/local/bin:$PATH"
+    bundle exec rake db:setup RAILS_ENV=#{environment}
     EOS
     cwd gitlabci['path']
     user gitlabci['user']
@@ -140,9 +125,10 @@ gitlabci['environments'].each do |environment|
   end
 
   # setup schedules
-  execute "setup schedules" do
+  execute 'setup schedules' do
     command <<-EOS
-      bundle exec whenever -w RAILS_ENV=#{environment}
+    PATH="/usr/local/bin:$PATH"
+    bundle exec whenever -w RAILS_ENV=#{environment}
     EOS
     cwd gitlabci['path']
     user gitlabci['user']
@@ -152,30 +138,24 @@ end
 
 case gitlabci['env']
 when 'production'
-  # install init script
-  template "/etc/init.d/gitlab_ci" do
-    source "initd.erb"
-    mode 0755
-    variables({
-      :path => gitlabci['path'],
-      :user => gitlabci['user'],
-      :env => gitlabci['env']
-    })
-  end
 
-  # start gitlab ci instance
-  service "gitlab_ci" do
+# => Install Provided Init Script
+ruby_block 'Configure Init Script' do
+  block do
+    resource = Chef::Resource::File.new('gitlab_init', run_context)
+    resource.path '/etc/init.d/gitlab_ci'
+    resource.content IO.read(File.join(gitlabci['path'], 'lib', 'support', 'init.d', 'gitlab_ci'))
+    resource.mode 0755
+    resource.run_action :create
+    if resource.updated? && gitlabci['env'] == 'production'
+      self.notifies :start, resources(:service => 'gitlab_ci'), :immediately
+    end
+  end
+end
+
+# => Declare Gitlab CI Service resource
+  service 'gitlab_ci' do
     supports :start => true, :stop => true, :restart => true, :status => true
     action :enable
   end
-
-  file File.join(gitlabci['home'], ".gitlab_start") do
-    owner gitlabci['user']
-    group gitlabci['group']
-    action :create_if_missing
-    notifies :start, "service[gitlab_ci]"
-  end
-else
-  # execute javascript test
-  include_recipe "phantomjs"
 end

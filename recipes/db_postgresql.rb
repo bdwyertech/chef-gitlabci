@@ -10,8 +10,8 @@ gitlabci = node['gitlabci']
 gitlabci = Chef::Mixin::DeepMerge.merge(gitlabci,gitlabci[gitlabci['env']])
 
 # database
-include_recipe "postgresql::server"
-include_recipe "database::postgresql"
+include_recipe 'postgresql::server'
+include_recipe 'database::postgresql'
 
 postgresql_connexion = {
   :host => 'localhost',

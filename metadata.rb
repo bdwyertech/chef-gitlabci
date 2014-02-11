@@ -9,10 +9,10 @@ version          '0.2.0'
 recipe "gitlabci::install", "Installation"
 recipe "gitlabci::runner", "Installation of a runner"
 
-%w{git docker mysql postgresql apt ruby_build nginx database phantomjs}.each do |dep|
+%w{apt database docker git magic_shell mysql nginx phantomjs postgresql redisio ruby_build rvm yum yum-epel}.each do |dep|
   depends dep
 end
 
-%w{ubuntu}.each do |os|
+%w{ubuntu centos}.each do |os|
   supports os
 end
