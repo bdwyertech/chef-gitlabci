@@ -19,18 +19,18 @@ end
 
 # copy the gitlab ci application config
 template File.join(gitlabci['path'], 'config', 'application.yml') do
-  source "application.yml.erb"
+  source 'application.yml.erb'
   user gitlabci['user']
   group gitlabci['group']
   variables({
     :server => gitlabci['gitlab']['server'],
-    :https => gitlabci['gitlab']['ssl'],
+    :https => gitlabci['gitlab']['ssl']
   })
 end
 
 # gitlab puma config
 template File.join(gitlabci['path'], 'config', 'puma.rb') do
-  source "puma.rb.erb"
+  source 'puma.rb.erb'
   user gitlabci['user']
   group gitlabci['group']
   variables({
@@ -140,18 +140,31 @@ case gitlabci['env']
 when 'production'
 
 # => Install Provided Init Script
-ruby_block 'Configure Init Script' do
-  block do
-    resource = Chef::Resource::File.new('gitlab_init', run_context)
-    resource.path '/etc/init.d/gitlab_ci'
-    resource.content IO.read(File.join(gitlabci['path'], 'lib', 'support', 'init.d', 'gitlab_ci'))
-    resource.mode 0755
-    resource.run_action :create
-    if resource.updated? && gitlabci['env'] == 'production'
-      self.notifies :start, resources(:service => 'gitlab_ci'), :immediately
-    end
+#  ruby_block 'Configure Init Script' do
+#    block do
+#      resource = Chef::Resource::File.new('gitlab_init', run_context)
+#      resource.path '/etc/init.d/gitlab_ci'
+#      resource.content IO.read(File.join(gitlabci['path'], 'lib', 'support', 'init.d', 'gitlab_ci'))
+#      resource.mode 0755
+#      resource.run_action :create
+#      if resource.updated? && gitlabci['env'] == 'production'
+#        self.notifies :start, resources(:service => 'gitlab_ci'), :immediately
+#      end
+#    end
+#  end
+
+# => Install init script from template
+  template File.join('etc', 'init.d', 'gitlab_ci') do
+    source 'initd.erb'
+    user 'root'
+    group 'root'
+    mode '0755'
+    variables({
+      :user => gitlabci['user'],
+      :path => gitlabci['path']
+    })
+    notifies :start, 'service[gitlab_ci]', :immediately
   end
-end
 
 # => Declare Gitlab CI Service resource
   service 'gitlab_ci' do

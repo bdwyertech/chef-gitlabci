@@ -9,7 +9,7 @@ version          '0.2.0'
 recipe "gitlabci::install", "Installation"
 recipe "gitlabci::runner", "Installation of a runner"
 
-%w{apt database docker git magic_shell mysql nginx phantomjs postgresql redisio ruby_build rvm yum yum-epel}.each do |dep|
+%w{apt database docker git magic_shell mysql nginx phantomjs postgresql redisio ruby_build yum yum-epel}.each do |dep|
   depends dep
 end
 

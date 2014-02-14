@@ -1,9 +1,9 @@
 # Package
-if platform_family?("ubuntu")
+if platform_family?('ubuntu')
   packages = %w{
    wget curl gcc checkinstall libxml2-dev libxslt-dev libcurl4-openssl-dev libreadline6-dev libc6-dev libssl-dev libmysql++-dev make build-essential zlib1g-dev openssh-server git-core libyaml-dev postfix libpq-dev libicu-dev redis-server
   }
-elsif platform_family?("rhel")
+elsif platform_family?('rhel')
   # => If your using Percona MySQL, you need to drop mysql-devel and substitute the Percona equivalent... Percona-Server-devel
   packages = %w{
   	wget curl libicu-devel libxslt-devel libyaml-devel libxml2-devel gdbm-devel libffi-devel zlib-devel openssl-devel
@@ -41,7 +41,7 @@ default['nginx']['repo_source'] = 'nginx'
 default['gitlabci']['ssl_enabled'] = false
 
 # => NginX SSL Certificate Stuff
-default['gitlabci']['ssl_certificate_path'] = "/etc/ssl" # Path to .crt file. If it directory doesn't exist it will be created
-default['gitlabci']['ssl_certificate_key_path'] = "/etc/ssl" # Path to .key file. If directory doesn't exist it will be created
+default['gitlabci']['ssl_certificate_path'] = '/etc/ssl' # Path to .crt file. If it directory doesn't exist it will be created
+default['gitlabci']['ssl_certificate_key_path'] = '/etc/ssl' # Path to .key file. If directory doesn't exist it will be created
 default['gitlabci']['ssl_certificate'] = "" # SSL certificate
 default['gitlabci']['ssl_certificate_key'] = "" # SSL certificate key
