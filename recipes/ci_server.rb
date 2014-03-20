@@ -23,20 +23,22 @@ template File.join(gitlabci['path'], 'config', 'application.yml') do
   user gitlabci['user']
   group gitlabci['group']
   variables({
-    :server => gitlabci['gitlab']['server'],
-    :https => gitlabci['gitlab']['ssl']
+    :host => gitlabci['host'],
+    :https => gitlabci['ssl_enabled'],
+    :port => gitlabci['port'],
+    :server => gitlabci['gitlab']['server']
   })
 end
 
-# gitlab puma config
-template File.join(gitlabci['path'], 'config', 'puma.rb') do
-  source 'puma.rb.erb'
+# gitlab unicorn config
+template File.join(gitlabci['path'], 'config', 'unicorn.rb') do
+  source 'unicorn.rb.erb'
   user gitlabci['user']
   group gitlabci['group']
   variables({
-      :path => gitlabci['path'],
-      :user => gitlabci['user'],
-      :env => gitlabci['env']
+    :path => gitlabci['path'],
+    :user => gitlabci['user'],
+    :env => gitlabci['env']
   })
 end
 

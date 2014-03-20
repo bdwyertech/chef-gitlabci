@@ -4,7 +4,7 @@ default['gitlabci']['production']['group'] = 'gitlab_ci'
 default['gitlabci']['production']['home'] = '/home/gitlab_ci'
 
 # git
-default['gitlabci']['production']['revision'] = '4-2-stable'
+default['gitlabci']['production']['revision'] = '4-3-stable'
 default['gitlabci']['production']['path'] = '/home/gitlab_ci/gitlab-ci'
 
 # setup environments
